@@ -32,16 +32,14 @@ class LocationMarkerPlugin implements MapPlugin {
 
   const LocationMarkerPlugin({
     this.locationOptions = const LocationOptions(),
-    @Deprecated('Do not need to specify permission type anymore, just delete it')
-        geolocationPermissions,
+    @Deprecated('Do not need to specify permission type anymore, just delete it') geolocationPermissions,
     this.centerCurrentLocationStream,
     this.centerOnLocationUpdate = CenterOnLocationUpdate.never,
     this.centerAnimationDuration = const Duration(milliseconds: 500),
   });
 
   @override
-  Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<Null> stream) {
+  Widget createLayer(LayerOptions options, MapState mapState, Stream<Null> stream) {
     return LocationMarkerLayer(this, options, mapState, stream);
   }
 
@@ -144,8 +142,7 @@ class LocationMarkerLayer extends StatefulWidget {
   _LocationMarkerLayerState createState() => _LocationMarkerLayerState();
 }
 
-class _LocationMarkerLayerState extends State<LocationMarkerLayer>
-    with TickerProviderStateMixin {
+class _LocationMarkerLayerState extends State<LocationMarkerLayer> with TickerProviderStateMixin {
   bool _isFirstLocationUpdate;
   Position _currentPosition;
   StreamSubscription<Position> _positionStreamSubscription;
@@ -159,9 +156,8 @@ class _LocationMarkerLayerState extends State<LocationMarkerLayer>
     _positionStreamSubscription = Geolocator.getPositionStream(
       desiredAccuracy: widget.plugin.locationOptions.accuracy,
       distanceFilter: widget.plugin.locationOptions.distanceFilter,
-      forceAndroidLocationManager:
-          widget.plugin.locationOptions.forceAndroidLocationManager,
-      timeInterval: widget.plugin.locationOptions.timeInterval,
+      forceAndroidLocationManager: widget.plugin.locationOptions.forceAndroidLocationManager,
+      intervalDuration: Duration.zero,
     ).listen((position) {
       setState(() => _currentPosition = position);
 
@@ -179,14 +175,11 @@ class _LocationMarkerLayerState extends State<LocationMarkerLayer>
           break;
       }
       if (centerCurrentLocation) {
-        _moveMap(LatLng(_currentPosition.latitude, _currentPosition.longitude),
-            widget.map.zoom);
+        _moveMap(LatLng(_currentPosition.latitude, _currentPosition.longitude), widget.map.zoom);
       }
     });
-    _moveToCurrentStreamSubscription =
-        widget.plugin.centerCurrentLocationStream?.listen((double zoom) {
-      _moveMap(
-          LatLng(_currentPosition.latitude, _currentPosition.longitude), zoom);
+    _moveToCurrentStreamSubscription = widget.plugin.centerCurrentLocationStream?.listen((double zoom) {
+      _moveMap(LatLng(_currentPosition.latitude, _currentPosition.longitude), zoom);
     });
   }
 
@@ -248,16 +241,13 @@ class _LocationMarkerLayerState extends State<LocationMarkerLayer>
                   builder: (_) {
                     return StreamBuilder(
                       stream: FlutterCompass.events,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<CompassEvent> snapshot) {
+                      builder: (BuildContext context, AsyncSnapshot<CompassEvent> snapshot) {
                         if (snapshot.hasData) {
                           return Transform.rotate(
                             angle: degToRadian(snapshot.data.heading),
                             child: CustomPaint(
-                              size: Size.fromRadius(widget
-                                  .locationMarkerOpts.headingSectorRadius),
-                              painter: HeadingSector(
-                                  widget.locationMarkerOpts.headingSectorColor),
+                              size: Size.fromRadius(widget.locationMarkerOpts.headingSectorRadius),
+                              painter: HeadingSector(widget.locationMarkerOpts.headingSectorColor),
                             ),
                           );
                         } else {
@@ -318,8 +308,7 @@ class _LocationMarkerLayerState extends State<LocationMarkerLayer>
     });
 
     _animationController.addStatusListener((AnimationStatus status) {
-      if (status == AnimationStatus.completed ||
-          status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
         _animationController.dispose();
         _animationController = null;
       }
